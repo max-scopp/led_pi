@@ -1,0 +1,10 @@
+{
+    "recommendations": [
+        "kakumei.ts-debug",
+        "tobermory.es6-string-html",
+        "abhijoybasak.nestjs-files",
+        "esbenp.prettier-vscode",
+        "rbbit.typescript-hero",
+        "irongeek.vscode-env"
+    ]
+}
