@@ -1,12 +1,13 @@
 import tinycolor from "tinycolor2";
-import { PixelColor } from "./color";
+
+import { ColorBase } from "./color-base";
 import { CHSV } from "./hsv";
-import { createLogger } from "./logger";
-import { Measure } from "./measure";
 
-const log = createLogger("color:rgb");
+export class CRGB extends ColorBase {
+  static Red = new CRGB(255, 0, 0);
+  static Green = new CRGB(0, 255, 0);
+  static Blue = new CRGB(0, 0, 255);
 
-export class CRGB implements PixelColor {
   constructor(
     public r: number,
     public g: number,
@@ -15,14 +16,27 @@ export class CRGB implements PixelColor {
     /**
      * Value from 0-1
      */
-    public a?: number
-  ) {}
+    public a: number = 1
+  ) {
+    super();
+  }
+
+  fadeToBlackBy(fraction: number) {
+    const result = this.a - fraction;
+
+    if (result >= 0) {
+      this.a = result;
+    } else {
+      this.a = 0;
+    }
+
+    return this;
+  }
 
   clone() {
     return new CRGB(this.r, this.g, this.b);
   }
 
-  @Measure(log, "from_hsv")
   static from_hsv(hsv: CHSV): CRGB {
     const { h: h, s: s, v: v } = hsv;
 

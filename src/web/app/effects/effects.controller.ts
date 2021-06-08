@@ -1,11 +1,26 @@
-import { Controller, Get } from "@nestjs/common";
+import {
+  Controller,
+  Get,
+  Post,
+  Param,
+  BadRequestException,
+} from "@nestjs/common";
 import Effects from "effects";
 import { Main } from "main";
 
 @Controller("effects")
 export class EffectsController {
-  @Get("rainbow")
-  rainbowEffect() {
-    Main.strip.setEffect(Effects.Rainbow);
+  @Get("list")
+  listEffects() {
+    return Object.keys(Effects);
+  }
+
+  @Post(":effect")
+  rainbowEffect(@Param() effect: string) {
+    if (Effects[effect]) {
+      return Main.strip.setEffect(Effects[effect]);
+    }
+
+    throw new BadRequestException("Unknown effect");
   }
 }

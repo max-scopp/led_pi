@@ -1,3 +1,3 @@
 export interface Effect {
-  loop(): any;
+  loop(): void;
 }

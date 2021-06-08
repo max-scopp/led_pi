@@ -12,6 +12,7 @@
                 "<node_internals>/**"
             ],
             "type": "node",
+            "console": "integratedTerminal",
             "envFile": "${workspaceFolder}/.env",
             "runtimeExecutable": "/root/.nvm/versions/node/v10.24.1/bin/node"
         },

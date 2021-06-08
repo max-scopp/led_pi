@@ -1,7 +1,7 @@
-import { PixelColor } from "./color";
+import { ColorBase } from "./color-base";
 import { CRGB } from "./rgb";
 
-export class CHSV implements PixelColor {
+export class CHSV extends ColorBase {
   constructor(
     public h: number,
     public s: number,
@@ -10,7 +10,21 @@ export class CHSV implements PixelColor {
      * aka. brightness
      */
     public v: number
-  ) {}
+  ) {
+    super();
+  }
+
+  fadeToBlackBy(fraction: number) {
+    const result = this.v - fraction;
+
+    if (result >= 0) {
+      this.v = result;
+    } else {
+      this.v = 0;
+    }
+
+    return this;
+  }
 
   clone() {
     return new CHSV(this.h, this.s, this.v);

@@ -1,10 +1,16 @@
 import tinycolor from "tinycolor2";
+
+import { ColorBase } from "./color-base";
+
 import { CHSV } from "./hsv";
 import { CRGB } from "./rgb";
 
-export interface PixelColor {
-  clone(): PixelColor;
-  toPixel(): number;
+export type Color = number | ColorBase;
+
+export function colorFraction(color: ColorBase, fraction: number) {
+  const frac = Math.min(1, fraction);
+
+  return color.clone().fadeToBlackBy(1 - frac);
 }
 
 export function colorFromString(color: string): CHSV {

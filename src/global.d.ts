@@ -1,6 +1,23 @@
 import * as fastify from "fastify";
 
 declare global {
+  type TypeOfTypes =
+    | "string"
+    | "number"
+    | "bigint"
+    | "boolean"
+    | "symbol"
+    | "undefined"
+    | "object"
+    | "function";
+
+  interface MutableSliceableArrayLike<T> {
+    [n: number]: T;
+
+    readonly length: number;
+    slice(start: number, end?: number): MutableSliceableArrayLike<T>;
+  }
+
   interface AnyObject {
     [key: string]: any;
   }

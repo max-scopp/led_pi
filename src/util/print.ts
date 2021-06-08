@@ -1,3 +1,6 @@
 export function print(...args: any[]) {
-    console.log(...args)
+  new Promise((resolve) => {
+    console.log(...args);
+    resolve(true);
+  });
 }
