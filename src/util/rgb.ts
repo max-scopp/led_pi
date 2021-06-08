@@ -1,31 +1,42 @@
+import { Decimal } from "decimal.js";
 import tinycolor from "tinycolor2";
 
 import { ColorBase } from "./color-base";
 import { CHSV } from "./hsv";
 
+/**
+ * base colors from https://www.usability.gov/sites/default/files/images/color-wheel.png
+ */
 export class CRGB extends ColorBase {
-  static Red = new CRGB(255, 0, 0);
-  static Green = new CRGB(0, 255, 0);
-  static Blue = new CRGB(0, 0, 255);
-
   constructor(
+    /**
+     * 0-255, red
+     */
     public r: number,
+
+    /**
+     * 0-255, green
+     */
     public g: number,
+
+    /**
+     * 0-255, blue
+     */
     public b: number,
 
     /**
-     * Value from 0-1
+     * 0-1, alpha, similiar to CHSV.v
      */
     public a: number = 1
   ) {
     super();
   }
 
-  fadeToBlackBy(fraction: number) {
-    const result = this.a - fraction;
+  fadeToBlackBy(fraction: Decimal.Value) {
+    const result = new Decimal(this.a).minus(fraction);
 
-    if (result >= 0) {
-      this.a = result;
+    if (result.greaterThanOrEqualTo(0)) {
+      this.a = result.toNumber();
     } else {
       this.a = 0;
     }

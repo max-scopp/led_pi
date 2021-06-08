@@ -1,9 +1,12 @@
-import { Effect } from "util/effect";
-import { Rainbow } from "./rainbow";
 import { Marquee } from "./marquee";
+import { PixelBounce } from "./pixel-bounce";
+import { RainbowSimple } from "./rainbow-simple";
+import { RainbowFancy } from "./rainbow-fancy";
 
-const Effects: { [key: string]: { new (): Effect } } = {
-  Rainbow,
+const Effects = {
+  PixelBounce,
+  RainbowSimple,
+  RainbowFancy,
   Marquee,
 };
 

@@ -16,7 +16,6 @@ export class Main {
     stripType: STRIP_TYPE as ws281x.StripType,
     gpio: GPIO_PIN,
   });
-  static iteration = -1;
 
   static exit(exitCode: number) {
     this.strip.fill(colorFromString("magenta"));
@@ -57,8 +56,8 @@ export class Main {
       process.on(sig, boundExit);
     });
 
-    print("Initialize web service...");
-    createWebService();
+    // print("Initialize web service...");
+    // createWebService();
 
     this.strip.fill(colorFromString("tomato"));
 
@@ -67,7 +66,7 @@ export class Main {
 
     // print("Running...");
     // setInterval(this.changeColor.bind(this), 1e3);
-    this.strip.setEffect(Effects.Marquee);
+    this.strip.setEffect(Effects.RainbowSimple);
   }
 }
 

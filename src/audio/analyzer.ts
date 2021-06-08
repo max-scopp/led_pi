@@ -70,7 +70,7 @@ export class Analyzer {
           new CHSV(
             80 + normalizedAmp * 260,
             1,
-            EasingFunctions.easeInOutQuad(normalizedAmp)
+            EasingFunctions.Quadratic.InOut(normalizedAmp)
           ).toPixel()
         );
       }
@@ -118,6 +118,6 @@ export class Analyzer {
     //   });
     // }
 
-    Main.strip.render();
+    // Main.strip.render();
   }
 }

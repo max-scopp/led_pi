@@ -5,8 +5,11 @@ import {
   Param,
   BadRequestException,
 } from "@nestjs/common";
-import Effects from "effects";
+import _Effects from "effects";
 import { Main } from "main";
+import { Effect } from "util/effect";
+
+const Effects = _Effects as { [key: string]: { new (): Effect } };
 
 @Controller("effects")
 export class EffectsController {

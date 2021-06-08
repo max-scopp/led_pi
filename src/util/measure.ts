@@ -4,13 +4,20 @@ type MessageCreator = (data: {
   className: string;
   durationInNs: string;
   durationInMs: string;
+  avergageInMs: string;
 }) => string;
 
 const defaultMessageCreator: MessageCreator = ({
   className,
   durationInNs,
   durationInMs,
-}) => `${className || "unknown"} took ${durationInNs}μs (${durationInMs}ms)`;
+  avergageInMs,
+}) =>
+  `${
+    className || "unknown"
+  } took ${durationInNs}μs (${durationInMs}ms) avg ${avergageInMs}ms`;
+
+const averages: AnyObject = {};
 
 export function Measure(
   logger: Function,
@@ -49,6 +56,20 @@ export function Measure(
         const durationInNs = finish - start;
         const durationInMs = durationInNs / 1e3;
 
+        const avgEntry = averages[`${functionName}${prefix}`];
+
+        averages[`${functionName}${prefix}`] = {
+          callCount: avgEntry ? avgEntry.callCount + 1 : 1,
+          totalTime: avgEntry
+            ? avgEntry.totalTime + durationInNs
+            : durationInNs,
+        };
+
+        const updatedAvgEntry = averages[`${functionName}${prefix}`];
+
+        const averageInMs =
+          updatedAvgEntry.totalTime / updatedAvgEntry.callCount / 1e3;
+
         logger(
           [
             prefix,
@@ -56,6 +77,7 @@ export function Measure(
               className,
               durationInNs: durationInNs.toFixed(2),
               durationInMs: durationInMs.toFixed(4),
+              avergageInMs: averageInMs.toFixed(4),
             }),
           ].join(" ")
         );
