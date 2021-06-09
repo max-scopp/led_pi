@@ -8,7 +8,6 @@ import { Strip } from "./strip";
 import { colorFromString } from "./util/color";
 import { initWebService } from "./web/main";
 
-
 const log = createLogger("main");
 
 export class Main {
@@ -71,6 +70,10 @@ export class Main {
 
     log("Initialize web service...");
     this.web = await initWebService();
+
+    if (process.env.NODE_ENV === "development") {
+      (global as any)["Main"] = this;
+    }
   }
 }
 

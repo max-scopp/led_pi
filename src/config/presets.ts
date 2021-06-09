@@ -28,8 +28,8 @@ export class PresetStorage extends LocalStorage<PresetConfiguration> {
       ["default-startup"]: {
         name: RainbowFancy.name,
         configuration: {
-          speed: 1,
-          hueDensity: 10,
+          speed: 15,
+          hueDensity: 5,
         },
       },
     },

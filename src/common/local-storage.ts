@@ -1,4 +1,4 @@
-import { R_OK, W_OK } from "constants";
+import { F_OK } from "constants";
 import { promises as fs } from "fs";
 import { resolve } from "path";
 
@@ -35,7 +35,7 @@ export class LocalStorage<T extends AnyObject> {
 
   async init() {
     try {
-      await fs.access(this._writePath, R_OK & W_OK);
+      await fs.access(this._writePath, F_OK);
     } catch (e) {
       await this.store();
     }

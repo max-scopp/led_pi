@@ -54,13 +54,13 @@ export class Strip {
   constructor(readonly _opts: ws281x.Configuration) {
     ws281x.configure(_opts);
 
+    this.tick();
+
     const startupEffect = <string>Config.presets.getItem("STARTUP_PRESET");
 
     if (startupEffect) {
       this.activatePreset(startupEffect);
     }
-
-    this.tick();
   }
 
   private tick = () => {
