@@ -30,7 +30,7 @@ export class LocalStorage<T extends AnyObject> {
   }
 
   private get _writePath() {
-    return resolve(__dirname, "../../", this._filePath);
+    return resolve(__dirname, "../../../", this._filePath);
   }
 
   async init() {
