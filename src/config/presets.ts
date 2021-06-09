@@ -7,9 +7,15 @@ export type Preset<T extends Effect = any> = Omit<
   "FRAMES_PER_SECOND" | "onMount" | "onUnmount" | "draw"
 >;
 
+<<<<<<< HEAD
 export type PresetEntry = {
   name: string;
   configuration: Preset;
+=======
+export type PresetEntry<T = any> = {
+  name: string;
+  configuration: Preset<T>;
+>>>>>>> e97a5ec16bc9f4b6f15cf7d0c584be90328e004b
 };
 
 export type PresetCollection = {
