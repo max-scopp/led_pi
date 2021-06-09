@@ -1,24 +1,29 @@
+import { NestFastifyApplication } from "@nestjs/platform-fastify";
+import { Analyzer } from "audio/analyzer";
 import { initAudio } from "audio/capture";
-import Effects from "effects";
+import Config from "config";
+import { createLogger } from "util/logger";
 import ws281x from "ws281x-pi4";
-
-import { GPIO_PIN, NUM_LEDS, STRIP_TYPE } from "./constants.json";
 import { Strip } from "./strip";
-import { blendColor, colorFromString } from "./util/color";
-import { print } from "./util/print";
-import { createWebService } from "./web/main";
+import { colorFromString } from "./util/color";
+import { initWebService } from "./web/main";
+
+
+const log = createLogger("main");
 
 export class Main {
   private static didSetup = false;
 
-  static strip = new Strip({
-    leds: NUM_LEDS,
-    stripType: STRIP_TYPE as ws281x.StripType,
-    gpio: GPIO_PIN,
-  });
+  static strip: Strip;
+
+  static analyzer: Analyzer;
+
+  static web: NestFastifyApplication | undefined;
 
   static exit(exitCode: number) {
-    this.strip.fill(colorFromString("magenta"));
+    if (this.strip) {
+      this.strip.fill(colorFromString("magenta"));
+    }
 
     this.cleanup(exitCode);
   }
@@ -27,14 +32,14 @@ export class Main {
     process.exit(exitCode);
   }
 
-  static setup() {
+  static async setup() {
     if (this.didSetup) {
       throw new Error("Setup already ran.");
     }
 
     this.didSetup = true;
 
-    print("Setup...");
+    log("Setup...");
 
     const boundExit = this.exit.bind(this);
 
@@ -45,28 +50,27 @@ export class Main {
       "SIGQUIT",
       "SIGILL",
       "SIGTRAP",
-      "SIGABRT",
-      "SIGBUS",
-      "SIGFPE",
-      "SIGUSR1",
-      "SIGSEGV",
-      "SIGUSR2",
       "SIGTERM",
     ].forEach((sig: string) => {
       process.on(sig, boundExit);
     });
 
-    // print("Initialize web service...");
-    // createWebService();
+    log("Initialize Config ...");
+    await Config.init();
 
-    this.strip.fill(colorFromString("tomato"));
+    log("Initialize LED Strip(s) ...");
 
-    print("Initialize Audio ...");
-    initAudio();
+    this.strip = new Strip({
+      leds: <number>Config.led.getItem("NUM_LEDS"),
+      gpio: <number>Config.led.getItem("GPIO_PIN"),
+      stripType: <ws281x.StripType>Config.led.getItem("STRIP_TYPE"),
+    });
 
-    // print("Running...");
-    // setInterval(this.changeColor.bind(this), 1e3);
-    this.strip.setEffect(Effects.RainbowSimple);
+    log("Initialize Audio ...");
+    this.analyzer = await initAudio();
+
+    log("Initialize web service...");
+    this.web = await initWebService();
   }
 }
 

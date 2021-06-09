@@ -12,7 +12,7 @@ declare module "ws281x-pi4" {
       width?: number;
       height?: number;
 
-      leds?: number;
+      leds: number;
 
       map?: StripMap;
 

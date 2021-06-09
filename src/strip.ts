@@ -3,34 +3,36 @@ import Effects from "effects";
 import { throttle } from "throttle-debounce";
 import { fillWithPattern, rotateLeft, rotateRight } from "util/array";
 import { ColorBase } from "util/color-base";
+import { fps } from "util/fps";
 import { print } from "util/print";
 import ws281x from "ws281x-pi4";
-
-import { NUM_LEDS } from "./constants.json";
+import { MS_PER_SECOND } from "./constants";
 import { Color, colorFraction } from "./util/color";
-import { Effect } from "./util/effect";
+import { IEffect } from "./util/effect";
 
 export class Strip {
-  private readonly leds = new Uint32Array(NUM_LEDS);
+  private readonly leds = new Uint32Array(this._opts.leds);
+  private readonly _drawSince = Date.now();
 
-  private _activeEffect: Effect | undefined;
-  private effectLoopId: number | undefined;
+  private _activeEffect: IEffect | undefined;
+  private _effectLoopId: number | undefined;
 
-  private _frameCounter = 0;
-  private _frameCountStart = Date.now();
-
+  /**
+   * Date.now() of the last render() call
+   */
   private _lastRender = 0;
+
+  /**
+   * Time spent in tick()
+   */
   private _lastFrameTime = 0;
 
+  // -1 means queue the next frame right after the render finished
+  private DEFAULT_FRAMES_PER_SECOND = 60;
   private _fps = 0;
 
-  // -1 means queue the next frame right after the render finished
-  private targetFps = -1;
-
-  private printFPS = throttle(100, () => {
-    const str = `FPS: ${this.fps.toFixed(3)}\tFT: ${this._lastFrameTime.toFixed(
-      3
-    )}ms`;
+  private printFPS = throttle(120, () => {
+    const str = `\tfps\t${this.fps} \tft(ms)\t${this._lastFrameTime}`;
 
     const line = new Array(34).fill(" ").map((v, i) => str[i] || v);
 
@@ -41,61 +43,48 @@ export class Strip {
     return this._fps;
   }
 
-  constructor(opts?: ws281x.Configuration) {
-    if (opts) ws281x.configure(opts);
+  get length() {
+    return this.leds.length;
+  }
+
+  constructor(readonly _opts: ws281x.Configuration) {
+    ws281x.configure(_opts);
     this.tick();
 
     (global as any).strip = this;
-    (global as any).Effectts = Effects;
+    (global as any).Effects = Effects;
   }
 
-  private tick() {
-    const next = () => setImmediate(() => this.tick());
+  private tick = () => {
+    const tickStart = Date.now();
 
-    const baseOneFrameTime = 1000 / this.targetFps;
-    let nextExpectedTime;
+    const targetFt =
+      MS_PER_SECOND /
+      (this._activeEffect?.FRAMES_PER_SECOND || this.DEFAULT_FRAMES_PER_SECOND);
 
-    if (this._activeEffect) {
-      const hasCustomFps = this._activeEffect.FRAMES_PER_SECOND !== 0;
+    const nextRenderAt = this._lastRender + targetFt - this._lastFrameTime;
 
-      const oneFrameTime = hasCustomFps
-        ? 1000 / this._activeEffect.FRAMES_PER_SECOND
-        : baseOneFrameTime;
-
-      nextExpectedTime = this._lastRender - 1 + oneFrameTime;
-    } else {
-      nextExpectedTime = this._lastRender - 1 + baseOneFrameTime;
-    }
-
-    if (Date.now() >= nextExpectedTime) {
+    if (tickStart >= nextRenderAt) {
       if (this._activeEffect) {
-        this._activeEffect.draw();
+        this._activeEffect.draw(tickStart - this._drawSince);
       }
 
       this.render();
 
-      this._lastFrameTime = Date.now() - this._lastRender;
-      this._lastRender = Date.now();
+      const now = Date.now();
+
+      this._fps = fps(this._lastRender, now);
+      this._lastRender = tickStart;
+      this._lastFrameTime = now - tickStart;
     }
 
-    next();
-  }
+    setTimeout(this.tick);
+  };
 
   private render() {
-    this._frameCounter++;
-
     ws281x.render(this.leds);
 
     this.printFPS();
-
-    const timeSince = Date.now() - this._frameCountStart;
-    this._fps = (this._frameCounter / timeSince) * 1e3;
-
-    if (this._frameCounter > 10) {
-      this._frameCounter = this._frameCounter / 2;
-      this._frameCountStart =
-        this._frameCountStart + (Date.now() - this._frameCountStart) / 2;
-    }
   }
 
   map(callback: (position: number, length: number, value: number) => Color) {
@@ -106,17 +95,23 @@ export class Strip {
     }
   }
 
+  /**
+   * Set's pixel forcefully using an integer
+   * @param position
+   * @param pixel
+   */
   setPixel(position: number, pixel: Color) {
     this.leds[position] = Number(pixel);
   }
 
   /**
-   * TODO: Make compatible with Color (numbers)
+   * Using a floating index and a floating count, set one, or multiple pixels,
+   * even if they overlap partially accordingly to the correct brightness and underlying color.
    * @param fPos
    * @param count
    * @param color
    */
-  drawPixels(fPos: number, count: number, color: ColorBase) {
+  drawPixels(fPos: number, color: ColorBase, count: number = 1) {
     // calc how much the first pixel will hold
     const decim = new Decimal(fPos);
 
@@ -126,7 +121,7 @@ export class Strip {
 
     const amtFirstPixel = Decimal.min(availableFirstPixel, count);
 
-    let remaining = Decimal.min(count, NUM_LEDS - fPos);
+    let remaining = Decimal.min(count, <number>this._opts.leds - fPos);
     let iPos = Math.trunc(fPos);
 
     if (remaining.greaterThan(0)) {
@@ -146,6 +141,12 @@ export class Strip {
 
   clear() {
     this.fill(0);
+  }
+
+  clearEffect() {
+    clearInterval(this._effectLoopId);
+    this._activeEffect = undefined;
+    this.clear();
   }
 
   // @Measure(print, "shift")
@@ -169,14 +170,9 @@ export class Strip {
     );
   }
 
-  setEffect(effect: { new (): Effect }) {
+  setEffect(effect: { new (): IEffect }) {
     this.clear();
 
     this._activeEffect = new effect();
-  }
-
-  clearEffect() {
-    clearInterval(this.effectLoopId);
-    this._activeEffect = undefined;
   }
 }

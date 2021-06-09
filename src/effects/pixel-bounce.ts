@@ -3,11 +3,9 @@ import { Main } from "main";
 import { blendColor } from "util/color";
 import { CWheel } from "util/color-wheel";
 import { EasingFunctions } from "util/easings";
-import { Effect } from "util/effect";
+import { DynamicEffect } from "util/effect";
 
-import { NUM_LEDS } from "../constants.json";
-
-export class PixelBounce implements Effect {
+export class PixelBounce extends DynamicEffect {
   FRAMES_PER_SECOND = 60;
 
   barLength = 3;
@@ -23,7 +21,7 @@ export class PixelBounce implements Effect {
       this.offset = this.offset.add(0.3);
     }
 
-    if (this.offset.greaterThan(NUM_LEDS - 1)) {
+    if (this.offset.greaterThan(Main.strip.length - 1)) {
       this.backMode = true;
     }
 
@@ -31,19 +29,19 @@ export class PixelBounce implements Effect {
       this.backMode = false;
     }
 
-    const percentageFloat = this.offset.dividedBy(NUM_LEDS).toNumber();
+    const percentageFloat = this.offset.dividedBy(Main.strip.length).toNumber();
 
     const scale = EasingFunctions.Cubic.In(percentageFloat);
 
-    const scaled = (NUM_LEDS - this.barLength) * scale;
+    const scaled = (Main.strip.length - this.barLength) * scale;
 
     Main.strip.clear();
     Main.strip.drawPixels(
       scaled,
-      this.barLength,
       this.backMode
         ? blendColor(CWheel.Yellow, CWheel.BlueViolet, percentageFloat * 100)
-        : CWheel.Yellow
+        : CWheel.Yellow,
+      this.barLength
     );
   }
 }

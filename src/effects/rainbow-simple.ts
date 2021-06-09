@@ -1,8 +1,8 @@
 import { Main } from "main";
-import { Effect } from "util/effect";
+import { DynamicEffect } from "util/effect";
 import { CHSV } from "util/hsv";
 
-export class RainbowSimple implements Effect {
+export class RainbowSimple implements DynamicEffect {
   FRAMES_PER_SECOND = 60;
 
   constructor() {

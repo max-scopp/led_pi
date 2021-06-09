@@ -1,27 +1,33 @@
-import Decimal from "decimal.js";
 import { Main } from "main";
-import { Effect } from "util/effect";
+import { DynamicEffect } from "util/effect";
 import { CHSV } from "util/hsv";
 import { print } from "util/print";
+import { HUE_END, MS_PER_SECOND, S_PER_MINUTE } from "../constants";
 
-export class RainbowFancy implements Effect {
-  FRAMES_PER_SECOND = 60;
+/**
+ * Rainbow effect, progression is based over time.
+ * You can choose any FPS to achieve the same progress over time X.
+ * This effect is not based on fps and is therefore deactivated.
+ */
+export class RainbowFancy extends DynamicEffect {
+  FRAMES_PER_SECOND = -1;
 
-  initialHue = new Decimal(0);
-  deltaHue = 0.5;
-  hueDensity = 1;
+  /**
+   * How fast the hue is moving
+   */
+  speed = 50;
 
-  draw() {
-    if (this.initialHue.greaterThan(360)) {
-      this.initialHue = this.initialHue.minus(360);
-    } else {
-      this.initialHue = this.initialHue.add(this.deltaHue);
-    }
+  /**
+   * How wide the hue is spread
+   */
+  hueDensity = 15;
 
+  draw(t: number) {
     Main.strip.map((position, count) => {
-      const stepHue = Number(this.initialHue) + this.hueDensity * position;
+      const pixelProgress = this.hueDensity * position;
+      const stepHue = t / this.speed + pixelProgress;
 
-      return new CHSV(Math.round(stepHue % 360), 1, 1);
+      return new CHSV(Math.round(stepHue % HUE_END), 1, 1);
     });
   }
 }

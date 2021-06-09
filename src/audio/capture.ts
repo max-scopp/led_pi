@@ -1,66 +1,65 @@
-import { RtAudio, RtAudioFormat } from "audify";
-import { Analyzer } from "./analyzer";
-
+import { RtAudio, RtAudioFormat, RtAudioStreamFlags } from "audify";
+import Config from "config";
 import promps from "prompts";
 import { print } from "util/print";
 
+import pkg from "../../package.json";
+import { Analyzer } from "./analyzer";
+
 export async function initAudio() {
-  // Init RtAudio instance using default sound API
-  const rtAudio = new RtAudio(/* Insert here specific API if needed */);
+  const rtAudio = new RtAudio();
 
   const devices = rtAudio.getDevices();
 
-  const answers = await promps({
-    type: "select",
-    name: "deviceId",
-    message: "Select a device",
-    choices: devices.map((device) => {
-      const {
-        name,
-        isDefaultInput,
-        isDefaultOutput,
-        inputChannels,
-        preferredSampleRate,
-      } = device;
+  let deviceId = <number>Config.audio.getItem("DEFAULT_DEVICE_ID");
 
-      return {
-        title: name,
-        description: JSON.stringify({
+  if (!(deviceId >= 0)) {
+    const answers = await promps({
+      type: "select",
+      name: "deviceId",
+      message: "Select a device (this will be remembered for the next start)",
+      choices: devices.map((device) => {
+        const {
+          name,
           isDefaultInput,
           isDefaultOutput,
           inputChannels,
           preferredSampleRate,
-        }),
-      };
-    }),
-  });
+        } = device;
 
-  const targetDevice = devices[answers.deviceId];
+        return {
+          title: name,
+          description: JSON.stringify({
+            isDefaultInput,
+            isDefaultOutput,
+            inputChannels,
+            preferredSampleRate,
+          }),
+        };
+      }),
+    });
 
-  // Open the input/output stream
+    Config.audio.setItem("DEFAULT_DEVICE_ID", answers.deviceId);
+    deviceId = answers.deviceId;
+  }
+
+  const targetDevice = devices[deviceId];
+  const fftSize = 512; // this is good with accounting last fft for analysis
+
   rtAudio.openStream(
-    // {
-    //   deviceId: rtAudio.getDefaultOutputDevice(), // Output device id (Get all devices using `getDevices`)
-    //   nChannels: 1, // Number of channels
-    //   firstChannel: 0, // First channel index on device (default = 0).
-    // },
     null,
     {
-      deviceId: answers.deviceId,
+      deviceId,
       nChannels: targetDevice.inputChannels,
     },
-    RtAudioFormat.RTAUDIO_SINT16, // PCM Format - Signed 16-bit integer
-    targetDevice.preferredSampleRate, // Sampling rate is 48kHz
-    512 * 4, // Frame size is 1920 (40ms)
-    "MyStream", // The name of the stream (used for JACK Api)
+    RtAudioFormat.RTAUDIO_FLOAT32,
+    targetDevice.preferredSampleRate, // usually 44.1kHz or 48kHz
+    fftSize,
+    pkg.name, // used for JACK Api
     null,
-    null
+    null,
+    RtAudioStreamFlags.RTAUDIO_MINIMIZE_LATENCY
   );
 
-  print(`Listening on ${targetDevice.name}`);
-
-  // Start the stream
-  rtAudio.start();
-
-  return new Analyzer(rtAudio, targetDevice.preferredSampleRate);
+  return new Analyzer(rtAudio, targetDevice.preferredSampleRate, fftSize);
 }

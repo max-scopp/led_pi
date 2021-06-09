@@ -1,11 +1,9 @@
 import Decimal from "decimal.js";
 import { Main } from "main";
 import { CWheel } from "util/color-wheel";
-import { Effect } from "util/effect";
+import { DynamicEffect } from "util/effect";
 
-import { NUM_LEDS } from "../constants.json";
-
-export class Marquee implements Effect {
+export class Marquee extends DynamicEffect {
   FRAMES_PER_SECOND = 60;
 
   scroll = new Decimal(0);
@@ -17,8 +15,8 @@ export class Marquee implements Effect {
       this.scroll = this.scroll.minus(5);
     }
 
-    for (let i = this.scroll.toNumber(); i < NUM_LEDS - 1; i += 5) {
-      Main.strip.drawPixels(i, 1, CWheel.Green);
+    for (let i = this.scroll.toNumber(); i < Main.strip.length - 1; i += 5) {
+      Main.strip.drawPixels(i, CWheel.Green, 3);
     }
   }
 }
