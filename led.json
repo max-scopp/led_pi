@@ -1,5 +1,0 @@
-{
-  "NUM_LEDS": 60,
-  "GPIO_PIN": 18,
-  "STRIP_TYPE": "grb"
-}

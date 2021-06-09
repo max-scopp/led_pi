@@ -1,3 +1,5 @@
+import Config from "config";
+import { Preset, PresetCollection } from "config/presets";
 import Decimal from "decimal.js";
 import Effects from "effects";
 import { throttle } from "throttle-debounce";
@@ -51,10 +53,14 @@ export class Strip {
 
   constructor(readonly _opts: ws281x.Configuration) {
     ws281x.configure(_opts);
-    this.tick();
 
-    (global as any).strip = this;
-    (global as any).Effects = Effects;
+    const startupEffect = <string>Config.presets.getItem("STARTUP_PRESET");
+
+    if (startupEffect) {
+      this.activatePreset(startupEffect);
+    }
+
+    this.tick();
   }
 
   private tick = () => {
@@ -188,8 +194,21 @@ export class Strip {
   }
 
   setEffect(effect: { new (): Effect }) {
-    this.clear();
-
     this._activeEffect = new effect();
+  }
+
+  activatePreset(presetName: string) {
+    const presets = <PresetCollection>Config.presets.getItem("EFFECTS");
+
+    if (!presets[presetName]) {
+      throw new Error(
+        `Preset "${presetName}" was not found in presets. Inspect presets.json!`
+      );
+    }
+
+    const targetPreset = presets[presetName];
+
+    this.setEffect(Effects[targetPreset.name]);
+    Object.assign(this._activeEffect, targetPreset.configuration);
   }
 }
