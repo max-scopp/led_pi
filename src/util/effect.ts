@@ -9,7 +9,7 @@ export enum EffectKind {
 /**
  * Base effect signature
  */
-export interface IEffect {
+export interface Effect {
   /**
    * configures when to call draw(), dynamically adjustable
    * -1 means as many as possible
@@ -17,33 +17,32 @@ export interface IEffect {
    */
   FRAMES_PER_SECOND: number;
 
+  onMount?: () => void;
+  onUnmount?: () => void;
+
+  /**
+   *
+   * @param t milliseconds elapsed since strip is rendering.
+   */
   draw(t: number): void;
 }
 
 /**
  * multiple effects grouped together
  */
-export type EffectCollection = { [key: string]: { new (): IEffect } };
+export type EffectCollection = { [key: string]: { new (): Effect } };
 
 /**
  * Do not use.
  */
-abstract class BaseEffect implements IEffect {
+export abstract class Effect {
   static KIND: EffectKind;
-
-  abstract FRAMES_PER_SECOND: number;
-
-  /**
-   *
-   * @param t milliseconds elapsed since strip is rendering.
-   */
-  abstract draw(t: number): void;
 }
 
-export abstract class DynamicEffect extends BaseEffect {
+export abstract class DynamicEffect extends Effect {
   static KIND = EffectKind.Dynamic;
 }
 
-export abstract class AudioEffect extends BaseEffect {
+export abstract class AudioEffect extends Effect {
   static KIND = EffectKind.Audial;
 }

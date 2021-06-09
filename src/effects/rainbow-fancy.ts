@@ -13,19 +13,20 @@ export class RainbowFancy extends DynamicEffect {
   FRAMES_PER_SECOND = -1;
 
   /**
-   * How fast the hue is moving
+   * How fast the hue is moving.
+   * Higher is slower, lower is faster.
    */
-  speed = 50;
+  speed = 12;
 
   /**
    * How wide the hue is spread
    */
-  hueDensity = 15;
+  hueDensity = 5;
 
   draw(t: number) {
     Main.strip.map((position, count) => {
       const pixelProgress = this.hueDensity * position;
-      const stepHue = t / this.speed + pixelProgress;
+      const stepHue = t / this.speed - pixelProgress;
 
       return new CHSV(Math.round(stepHue % HUE_END), 1, 1);
     });

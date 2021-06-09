@@ -8,13 +8,15 @@ import { print } from "util/print";
 import ws281x from "ws281x-pi4";
 import { MS_PER_SECOND } from "./constants";
 import { Color, colorFraction } from "./util/color";
-import { IEffect } from "./util/effect";
+import { Effect } from "./util/effect";
+
+const META_MOUNT = "EFF_DID_MOUNT";
 
 export class Strip {
   private readonly leds = new Uint32Array(this._opts.leds);
   private readonly _drawSince = Date.now();
 
-  private _activeEffect: IEffect | undefined;
+  private _activeEffect: Effect | undefined;
   private _effectLoopId: number | undefined;
 
   /**
@@ -66,6 +68,16 @@ export class Strip {
 
     if (tickStart >= nextRenderAt) {
       if (this._activeEffect) {
+        const didMount = Reflect.getMetadata(META_MOUNT, this._activeEffect);
+
+        if (!didMount) {
+          if (this._activeEffect.onMount) {
+            this._activeEffect.onMount();
+          }
+
+          Reflect.defineMetadata(META_MOUNT, true, this._activeEffect);
+        }
+
         this._activeEffect.draw(tickStart - this._drawSince);
       }
 
@@ -145,6 +157,11 @@ export class Strip {
 
   clearEffect() {
     clearInterval(this._effectLoopId);
+
+    if (this._activeEffect?.onUnmount) {
+      this._activeEffect?.onUnmount();
+    }
+
     this._activeEffect = undefined;
     this.clear();
   }
@@ -170,7 +187,7 @@ export class Strip {
     );
   }
 
-  setEffect(effect: { new (): IEffect }) {
+  setEffect(effect: { new (): Effect }) {
     this.clear();
 
     this._activeEffect = new effect();
