@@ -17,12 +17,12 @@ export class Fade extends DynamicEffect {
 
   draw(t: number) {
     const tPos = t / this.speed;
-    const fPos = this.easing(tPos % this.colors.length);
+    const fPos = tPos % this.colors.length;
 
     const bC = Math.floor(fPos);
     const tC = Math.ceil(fPos) % this.colors.length; // if we're at the end, the module will handle the edge case, too
 
-    const fMix = (fPos - Math.trunc(fPos)) * 100;
+    const fMix = this.easing((fPos - Math.trunc(fPos)) * 100);
 
     const c = blendColor(this.colors[bC], this.colors[tC], fMix);
 
