@@ -1,6 +1,6 @@
 import { Main } from "main";
-import { DynamicEffect } from "util/effect";
-import { CHSV } from "util/hsv";
+import { DynamicEffect } from "common/effect";
+import { CHSV } from "core/hsv";
 
 /**
  * The most basic rainbow effect possible.

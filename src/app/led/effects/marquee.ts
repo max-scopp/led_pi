@@ -1,7 +1,7 @@
 import Decimal from "decimal.js";
 import { Main } from "main";
-import { CWheel } from "util/color-wheel";
-import { DynamicEffect } from "util/effect";
+import { CWheel } from "core/color-wheel";
+import { DynamicEffect } from "common/effect";
 
 export class Marquee extends DynamicEffect {
   FRAMES_PER_SECOND = 60;

@@ -6,8 +6,8 @@ import { print } from "util/print";
 import * as asciichart from "asciichart";
 import Meyda, { MeydaAudioFeature } from "meyda";
 import { Main } from "main";
-import { CHSV } from "util/hsv";
-import { EasingFunctions } from "util/easings";
+import { CHSV } from "core/hsv";
+import { EasingFunctions } from "common/easings";
 
 export class Analyzer {
   activeChunk = Buffer.of();

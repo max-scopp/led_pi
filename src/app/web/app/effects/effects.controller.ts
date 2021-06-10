@@ -5,7 +5,7 @@ import {
   Param,
   BadRequestException,
 } from "@nestjs/common";
-import Effects from "effects";
+import Effects from "app/led/effects";
 import { Main } from "main";
 
 @Controller("effects")

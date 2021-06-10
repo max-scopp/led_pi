@@ -1,9 +1,9 @@
 import Decimal from "decimal.js";
 import { Main } from "main";
-import { blendColor } from "util/color";
-import { CWheel } from "util/color-wheel";
-import { EasingFunctions } from "util/easings";
-import { DynamicEffect } from "util/effect";
+import { blendColor } from "core/color";
+import { CWheel } from "core/color-wheel";
+import { EasingFunctions } from "common/easings";
+import { DynamicEffect } from "common/effect";
 
 export class PixelBounce extends DynamicEffect {
   FRAMES_PER_SECOND = 60;

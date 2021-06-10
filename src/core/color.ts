@@ -1,10 +1,10 @@
-import { Decimal } from 'decimal.js';
-import tinycolor from 'tinycolor2';
+import { Decimal } from "decimal.js";
+import tinycolor from "tinycolor2";
 
-import { ColorBase } from './color-base';
-import { EasingFunctions } from './easings';
-import { CHSV } from './hsv';
-import { CRGB } from './rgb';
+import { ColorBase } from "./color-base";
+import { EasingFunctions } from "../common/easings";
+import { CHSV } from "./hsv";
+import { CRGB } from "./rgb";
 
 export type Color = number | Decimal | ColorBase;
 
@@ -26,13 +26,17 @@ export function colorFromString(color: string): CHSV {
 }
 
 /**
- * 
- * @param colorA 
- * @param colorB 
+ *
+ * @param colorA
+ * @param colorB
  * @param amount 0 - 100, where 0 is more from `colorA` than `colorB`
- * @returns 
+ * @returns
  */
-export function blendColor(colorA: CRGB | CHSV, colorB: CRGB | CHSV, amount: number = 50) {
+export function blendColor(
+  colorA: CRGB | CHSV,
+  colorB: CRGB | CHSV,
+  amount: number = 50
+) {
   const { r, g, b, a } = tinycolor.mix(colorA, colorB, amount).toRgb();
   return new CRGB(r, g, b, a);
 }

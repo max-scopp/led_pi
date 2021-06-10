@@ -1,12 +1,13 @@
 import { NestFastifyApplication } from "@nestjs/platform-fastify";
-import { Analyzer } from "audio/analyzer";
-import { initAudio } from "audio/capture";
+import { Analyzer } from "app/audio/analyzer";
+import { initAudio } from "app/audio/capture";
 import Config from "config";
+import Effects from "app/led/effects";
 import { createLogger } from "util/logger";
 import ws281x from "ws281x-pi4";
-import { Strip } from "./strip";
-import { colorFromString } from "./util/color";
-import { initWebService } from "./web/main";
+import { Strip } from "./app/led/strip";
+import { colorFromString } from "./core/color";
+import { initWebService } from "./app/web/main";
 
 const log = createLogger("main");
 
@@ -73,6 +74,7 @@ export class Main {
 
     if (process.env.NODE_ENV === "development") {
       (global as any)["Main"] = this;
+      (global as any)["Effects"] = Effects;
     }
   }
 }

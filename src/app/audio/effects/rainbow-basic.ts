@@ -1,17 +1,16 @@
-import { Analyzer } from "audio/analyzer";
+import { Analyzer } from "app/audio/analyzer";
 import { Main } from "main";
 import Meyda from "meyda";
-import { EasingFunctions } from "util/easings";
-import { AudioEffect, DynamicEffect } from "util/effect";
-import { CHSV } from "util/hsv";
+import { EasingFunctions } from "common/easings";
+import { AudioEffect, DynamicEffect } from "common/effect";
+import { CHSV } from "core/hsv";
 
-const NOISE_REDUC = 600;
+const NOISE_REDUC = 650;
 
 export class RainbowAudialBasic extends AudioEffect {
   FRAMES_PER_SECOND = -1;
 
   analyzer = Main.analyzer;
-  loudestOverall = 0;
 
   scaleDown = true;
 
@@ -39,28 +38,25 @@ export class RainbowAudialBasic extends AudioEffect {
       // Main.strip.clear();
 
       const loudest = Math.max(...(spectrum as any)) - NOISE_REDUC;
-      if (loudest > this.loudestOverall) {
-        this.loudestOverall = loudest;
-      }
 
       let freq_avg = 0;
 
       for (let i = 0; i < spectrum.length; i++) {
         const perc = i / spectrum.length;
 
-        // const ROLLOFF = EasingFunctions.Quintic.Out(perc) * NOISE_REDUC;
-        const ampRaw = spectrum[i] - NOISE_REDUC; //+ ROLLOFF;
+        //const ROLLOFF = EasingFunctions.Quintic.Out(perc) * NOISE_REDUC;
+        const ampRaw = spectrum[i] - NOISE_REDUC; // + ROLLOFF;
         const ampNormal = this.analyzer.normalizeAmplitude(ampRaw);
-        const ampLinear = ampRaw / this.loudestOverall;
+        const ampLinear = ampRaw / loudest;
 
         freq_avg += ampRaw;
 
         const posInStrip = Main.strip.length * perc;
 
         const amplitudeColor = new CHSV(
-          perc * 360,
+          (perc * 360 + 180) % 360,
           1,
-          EasingFunctions.Quintic.Out(ampNormal)
+          EasingFunctions.Quintic.Out(ampLinear)
         );
 
         // console.log(

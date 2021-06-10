@@ -1,6 +1,6 @@
 import { LocalStorage } from "common/local-storage";
-import { RainbowFancy } from "effects/rainbow-fancy";
-import { Effect } from "util/effect";
+import { RainbowFancy } from "app/led/effects/rainbow-fancy";
+import { Effect } from "common/effect";
 
 export type Preset<T extends Effect = any> = Omit<
   T,

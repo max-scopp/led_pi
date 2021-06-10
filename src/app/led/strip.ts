@@ -1,16 +1,16 @@
 import Config from "config";
 import { Preset, PresetCollection } from "config/presets";
 import Decimal from "decimal.js";
-import Effects from "effects";
+import Effects from "app/led/effects";
 import { throttle } from "throttle-debounce";
 import { fillWithPattern, rotateLeft, rotateRight } from "util/array";
-import { ColorBase } from "util/color-base";
+import { ColorBase } from "core/color-base";
 import { fps } from "util/fps";
 import { print } from "util/print";
 import ws281x from "ws281x-pi4";
-import { MS_PER_SECOND } from "./constants";
-import { Color, colorFraction } from "./util/color";
-import { Effect } from "./util/effect";
+import { MS_PER_SECOND } from "../../constants";
+import { Color, colorFraction } from "../../core/color";
+import { Effect } from "../../common/effect";
 
 const META_MOUNT = "EFF_DID_MOUNT";
 
@@ -34,9 +34,10 @@ export class Strip {
   // -1 means queue the next frame right after the render finished
   private DEFAULT_FRAMES_PER_SECOND = 60;
   private _fps = 0;
+  private _fpsHistory = new Array(500).fill(0);
 
-  private printFPS = throttle(120, () => {
-    const str = `\tfps\t${this.fps} \tft(ms)\t${this._lastFrameTime}`;
+  private printFPS = throttle(60, () => {
+    const str = `\tfps\t${this.fps} \tfps(avg)\t${this.fpsAverage} \tft(ms)\t${this._lastFrameTime}`;
 
     const line = new Array(34).fill(" ").map((v, i) => str[i] || v);
 
@@ -45,6 +46,15 @@ export class Strip {
 
   get fps() {
     return this._fps;
+  }
+
+  get fpsAverage() {
+    let total = 0;
+    for (let i = 0; i < this._fpsHistory.length; i++) {
+      total += this._fpsHistory[i];
+    }
+
+    return Math.trunc(total / this._fpsHistory.length);
   }
 
   get length() {
@@ -92,6 +102,9 @@ export class Strip {
       const now = Date.now();
 
       this._fps = fps(this._lastRender, now);
+      this._fpsHistory.push(this._fps);
+      this._fpsHistory.shift();
+
       this._lastRender = tickStart;
       this._lastFrameTime = now - tickStart;
     }

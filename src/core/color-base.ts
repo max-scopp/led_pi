@@ -1,6 +1,6 @@
 import Decimal from "decimal.js";
-import { createLogger } from "./logger";
-import { Measure } from "./measure";
+import { createLogger } from "../util/logger";
+import { Measure } from "../util/measure";
 
 const log = createLogger("color");
 

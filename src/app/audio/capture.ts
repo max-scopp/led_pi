@@ -3,7 +3,7 @@ import Config from "config";
 import promps from "prompts";
 import { print } from "util/print";
 
-import pkg from "../../package.json";
+import pkg from "../../../package.json";
 import { Analyzer } from "./analyzer";
 
 export async function initAudio() {

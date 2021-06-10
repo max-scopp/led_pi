@@ -1,8 +1,8 @@
 import { Main } from "main";
-import { DynamicEffect } from "util/effect";
-import { CHSV } from "util/hsv";
+import { DynamicEffect } from "common/effect";
+import { CHSV } from "core/hsv";
 import { print } from "util/print";
-import { HUE_END, MS_PER_SECOND, S_PER_MINUTE } from "../constants";
+import { HUE_END, MS_PER_SECOND, S_PER_MINUTE } from "../../../constants";
 
 /**
  * Rainbow effect, progression is based over time.

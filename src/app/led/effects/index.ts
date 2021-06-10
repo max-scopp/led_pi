@@ -2,8 +2,8 @@ import { Marquee } from "./marquee";
 import { PixelBounce } from "./pixel-bounce";
 import { RainbowSimple } from "./rainbow-simple";
 import { RainbowFancy } from "./rainbow-fancy";
-import { EffectCollection } from "util/effect";
-import AudioEffects from "audio/effects";
+import { EffectCollection } from "common/effect";
+import AudioEffects from "app/audio/effects";
 
 const Effects: EffectCollection = {
   PixelBounce,

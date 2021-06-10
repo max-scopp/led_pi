@@ -1,4 +1,4 @@
-import { Analyzer } from "audio/analyzer";
+import { Analyzer } from "app/audio/analyzer";
 
 export enum EffectKind {
   Static,
