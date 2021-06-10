@@ -5,6 +5,10 @@ import { CWheel } from "core/color-wheel";
 import { Main } from "main";
 import { MS_PER_SECOND } from "../../../constants";
 
+/**
+ * Infinitely fade between the provided set of colors.
+ * FPS independent. Prefer uncapped fps for maximum juicy smoothness ;)
+ */
 export class Fade extends DynamicEffect {
   FRAMES_PER_SECOND = -1;
 

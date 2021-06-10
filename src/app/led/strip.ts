@@ -14,6 +14,15 @@ import { Effect } from "../../common/effect";
 
 const META_MOUNT = "EFF_DID_MOUNT";
 
+export interface OneDStrip extends ws281x.Configuration {
+  leds: number;
+}
+
+export interface MatrixStrip extends ws281x.Configuration {
+  width: number;
+  height: number;
+}
+
 export class Strip {
   private readonly leds = new Uint32Array(this._opts.leds);
   private readonly _drawSince = Date.now();
@@ -61,7 +70,7 @@ export class Strip {
     return this.leds.length;
   }
 
-  constructor(readonly _opts: ws281x.Configuration) {
+  constructor(readonly _opts: OneDStrip | MatrixStrip) {
     ws281x.configure(_opts);
 
     this.tick();
@@ -71,6 +80,12 @@ export class Strip {
     if (startupEffect) {
       this.activatePreset(startupEffect);
     }
+  }
+
+  private render() {
+    ws281x.render(this.leds);
+
+    this.printFPS();
   }
 
   private tick = () => {
@@ -112,10 +127,13 @@ export class Strip {
     setTimeout(this.tick);
   };
 
-  private render() {
-    ws281x.render(this.leds);
-
-    this.printFPS();
+  /**
+   * Adjust the brightness of the final led's.
+   * May impact performance.
+   * @param brightness 0-255
+   */
+  brightness(brightness: number) {
+    throw new Error("Not supported (yet)");
   }
 
   map(callback: (position: number, length: number, value: number) => Color) {
