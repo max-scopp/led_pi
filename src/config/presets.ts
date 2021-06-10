@@ -37,7 +37,7 @@ export class PresetStorage extends LocalStorage<PresetConfiguration> {
       ["gamer-fade"]: {
         name: Fade.name,
         configuration: {
-          speed: 5e3,
+          speed: 5,
           colors: [new CRGB(0, 255, 255), new CRGB(255, 0, 255)],
         },
       },

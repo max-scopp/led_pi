@@ -11,20 +11,20 @@ export class Fade extends DynamicEffect {
   colors = [CWheel.Red, CWheel.Green, CWheel.Blue];
 
   offset = 0;
-  speed = MS_PER_SECOND * 2;
+  speed = 1;
 
   easing = EasingFunctions.Sinusoidal.InOut;
 
   draw(t: number) {
-    const tPos = t / this.speed;
-    const fPos = this.easing(tPos % this.colors.length);
+    const tPos = t / (this.speed * MS_PER_SECOND);
+    const fPos = tPos % this.colors.length;
 
-    const bC = Math.floor(fPos);
-    const tC = Math.ceil(fPos) % this.colors.length; // if we're at the end, the module will handle the edge case, too
+    const prevC = Math.floor(fPos);
+    const nextC = Math.ceil(fPos) % this.colors.length; // if we're at the end, the module will handle the edge case, too
 
-    const fMix = (fPos - Math.trunc(fPos)) * 100;
+    const fMix = this.easing(fPos - Math.trunc(fPos));
 
-    const c = blendColor(this.colors[bC], this.colors[tC], fMix);
+    const c = blendColor(this.colors[prevC], this.colors[nextC], fMix * 100);
 
     Main.strip.fill(c);
   }
