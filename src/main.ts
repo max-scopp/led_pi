@@ -8,6 +8,7 @@ import ws281x from "ws281x-pi4";
 import { Strip } from "./app/led/strip";
 import { colorFromString } from "./core/color";
 import { initWebService } from "./app/web/main";
+import { EasingFunctions } from "common/easings";
 
 const log = createLogger("main");
 
@@ -75,6 +76,7 @@ export class Main {
     if (process.env.NODE_ENV === "development") {
       (global as any)["Main"] = this;
       (global as any)["Effects"] = Effects;
+      (global as any)["EasingFunctions"] = EasingFunctions;
     }
   }
 }
