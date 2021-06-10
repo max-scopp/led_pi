@@ -16,6 +16,10 @@
 
 # Spectrum analyzer
 
+- [Core definition on how frequency bands are calculated](https://youtu.be/FGurPgcN5u4?t=850)
+  - Main function is `ProcessPeaks` (input of that is probably the stuff I already get from audify)
+- [Core definition on how VU meters are calculated]()
+
 - [Part 1](https://www.youtube.com/watch?v=f_zt7zdGJCA)
 - [Part 2](https://www.youtube.com/watch?v=FGurPgcN5u4)
 - [Part 2](https://www.youtube.com/watch?v=um280z_1c1w)

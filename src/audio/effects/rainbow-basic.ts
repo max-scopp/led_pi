@@ -29,6 +29,10 @@ export class RainbowAudialBasic extends AudioEffect {
     const result = meyda.amplitudeSpectrum;
 
     if (result) {
+      // the first 2 buckets are effectively VU-Meters,
+      // which are the overall impact of the samples and do NOT
+      // reside to a specific band.
+      // @see https://youtu.be/FGurPgcN5u4?t=1090
       const spectrum = result.slice(2, result.length * 0.7);
       const len = spectrum.length;
 

@@ -4,7 +4,7 @@
   "description": "Project Beamer PI",
   "main": "dist/index.js",
   "scripts": {
-    "start": "NODE_PATH=./build/src NODE_ENV=development node build/src/main.js",
+    "start": "NODE_PATH=./build/src node build/src/main.js",
     "start:dev": "NODE_PATH=./build/ DEBUG='*' ts-node src/main.ts",
     "watch:dev": "tsc -w",
     "build": "tsc",
