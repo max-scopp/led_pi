@@ -1,6 +1,8 @@
 import { LocalStorage } from "common/local-storage";
 import { RainbowFancy } from "app/led/effects/rainbow-fancy";
 import { Effect } from "common/effect";
+import { Fade } from "app/led/effects/fade";
+import { CRGB } from "core/rgb";
 
 export type Preset<T extends Effect = any> = Omit<
   T,
@@ -30,6 +32,13 @@ export class PresetStorage extends LocalStorage<PresetConfiguration> {
         configuration: {
           speed: 15,
           hueDensity: 5,
+        },
+      },
+      ["gamer-fade"]: {
+        name: Fade.name,
+        configuration: {
+          speed: 5e3,
+          colors: [new CRGB(0, 255, 255), new CRGB(255, 0, 255)],
         },
       },
     },
