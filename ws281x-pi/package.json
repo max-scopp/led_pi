@@ -1,0 +1,37 @@
+{
+  "name": "@max.scopp/ws281x-pi",
+  "version": "1.1.0",
+  "description": "rpi-ws281x",
+  "main": "index.js",
+  "scripts": {
+    "compile": "node-gyp configure && node-gyp build && npm run build",
+    "build": "tsc",
+    "goto-github": "make goto-github",
+    "goto-npm": "make goto-npm",
+    "git-pull": "make git-pull",
+    "git-commit": "make git-commit",
+    "git-revert": "make git-revert",
+    "npm-publish": "make npm-publish"
+  },
+  "keywords": [
+    "ws2811",
+    "ws2812",
+    "ws281x",
+    "neopixel",
+    "neopixels",
+    "adafruit"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gberdeaux/rpi-ws281x.git"
+  },
+  "author": "",
+  "bugs": {
+    "url": "https://github.com/gberdeaux/rpi-ws281x/issues"
+  },
+  "dependencies": {
+    "nan": "^2.14.2",
+    "typescript": "^4.3.2"
+  },
+  "homepage": "https://github.com/gberdeaux/rpi-ws281x#readme"
+}
