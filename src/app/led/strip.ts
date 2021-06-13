@@ -1,31 +1,32 @@
+import Ws281x, { Configuration } from "@max.scopp/ws281x-pi";
+import Effects from "app/led/effects";
+import { Easing, EasingFunctions } from "common/easings";
 import Config from "config";
 import { Preset, PresetCollection } from "config/presets";
-import Decimal from "decimal.js";
-import Effects from "app/led/effects";
+import { ColorBase } from "core/color-base";
+import { performance } from "perf_hooks";
 import { throttle } from "throttle-debounce";
 import { fillWithPattern, rotateLeft, rotateRight } from "util/array";
-import { ColorBase } from "core/color-base";
 import { fps } from "util/fps";
 import { print } from "util/print";
-import ws281x from "ws281x-pi4";
+import { Effect } from "../../common/effect";
 import { MS_PER_SECOND } from "../../constants";
 import { Color, colorFraction } from "../../core/color";
-import { Effect } from "../../common/effect";
 
 const META_MOUNT = "EFF_DID_MOUNT";
 
-export interface OneDStrip extends ws281x.Configuration {
+export interface OneDStrip extends Configuration {
   leds: number;
 }
 
-export interface MatrixStrip extends ws281x.Configuration {
+export interface MatrixStrip extends Configuration {
   width: number;
   height: number;
 }
 
-export class Strip {
-  private readonly leds = new Uint32Array(this._opts.leds);
-  private readonly _drawSince = Date.now();
+export class Strip extends Ws281x {
+  private readonly leds;
+  private readonly _drawSince = performance.now();
 
   private _activeEffect: Effect | undefined;
   private _effectLoopId: number | undefined;
@@ -41,11 +42,14 @@ export class Strip {
   private _lastFrameTime = 0;
 
   // -1 means queue the next frame right after the render finished
-  private DEFAULT_FRAMES_PER_SECOND = 60;
+  private DEFAULT_FRAMES_PER_SECOND = 64;
+
   private _fps = 0;
   private _fpsHistory = new Array(500).fill(0);
 
-  private printFPS = throttle(60, () => {
+  private paused: boolean = false;
+
+  private printFPS = throttle(333, () => {
     const str = `\tfps\t${this.fps} \tfps(avg)\t${this.fpsAverage} \tft(ms)\t${this._lastFrameTime}`;
 
     const line = new Array(34).fill(" ").map((v, i) => str[i] || v);
@@ -67,29 +71,39 @@ export class Strip {
   }
 
   get length() {
-    return this.leds.length;
+    return this.led_count;
   }
 
-  constructor(readonly _opts: OneDStrip | MatrixStrip) {
-    ws281x.configure(_opts);
+  constructor(options: OneDStrip | MatrixStrip) {
+    super(options);
 
-    this.tick();
+    this.leds = new Uint32Array(Number(this.led_count));
 
     const startupEffect = <string>Config.presets.getItem("STARTUP_PRESET");
 
     if (startupEffect) {
       this.activatePreset(startupEffect);
     }
+
+    // class initialized, run the rest lazily.
+    setTimeout(() => {
+      this.startup();
+      this.tick();
+    });
   }
 
-  private render() {
-    ws281x.render(this.leds);
+  render() {
+    super.render(this.leds);
 
     this.printFPS();
   }
 
   private tick = () => {
-    const tickStart = Date.now();
+    if (this.paused) {
+      return;
+    }
+
+    const tickStart = performance.now();
 
     const targetFt =
       MS_PER_SECOND /
@@ -114,7 +128,7 @@ export class Strip {
 
       this.render();
 
-      const now = Date.now();
+      const now = performance.now();
 
       this._fps = fps(this._lastRender, now);
       this._fpsHistory.push(this._fps);
@@ -124,20 +138,84 @@ export class Strip {
       this._lastFrameTime = now - tickStart;
     }
 
-    setTimeout(this.tick);
+    setImmediate(this.tick);
   };
 
+  continue() {
+    this.paused = false;
+    this.tick();
+  }
+
+  pause() {
+    this.paused = true;
+  }
+
+  adjustBrightnessSmooth(
+    target: number,
+    inMs: number = 400,
+    easing: Easing = EasingFunctions.Quartic.Out
+  ) {
+    const old_brightness = this.brightness;
+
+    // change large the change is from the current to the new brightness
+    const range = target - old_brightness;
+
+    // track progress from 0-1
+    let progress = 0;
+
+    // how many ms to sleep
+    const changePer = 30;
+
+    // how much change will occour in the time we slept
+    const step_per_iteration = changePer / inMs;
+
+    const interval = setInterval(() => {
+      progress += step_per_iteration;
+
+      // in some cases, it's possible to slightly overshoot
+      // due to the way floats work.
+      if(progress >= 1) {
+        clearInterval(interval);
+        progress = 1
+      }
+
+      // calculate the change, including the easing
+      const meanwhile = range * easing(progress);
+
+      // apply the change on top of the old brightness
+      const intermediate_brightness = old_brightness + meanwhile;
+
+      // apply
+      this.setBrightness(intermediate_brightness);
+
+      // check if we hit the target value prematurely,
+      // if so, no need to progress further.
+      
+      if(intermediate_brightness === target) {
+        clearInterval(interval);
+      }
+    }, changePer);
+  }
+
   /**
-   * Adjust the brightness of the final led's.
-   * May impact performance.
-   * @param brightness 0-255
+   * Fades-out the strip into black and does some cleanup routines, if nessasairy.
    */
-  brightness(brightness: number) {
-    throw new Error("Not supported (yet)");
+  shutdown() {
+    this.adjustBrightnessSmooth(0);
+  }
+
+  /**
+   * Fades in the strip from black.
+   */
+  startup() {
+    const target = this.brightness;
+
+    this.setBrightness(0);
+    this.adjustBrightnessSmooth(target);
   }
 
   map(callback: (position: number, length: number, value: number) => Color) {
-    const ledLength = this.leds.length;
+    const ledLength = this.length;
 
     for (let i = 0; i < ledLength; i++) {
       this.leds[i] = Number(callback(i, ledLength, this.leds[i]));
@@ -161,29 +239,24 @@ export class Strip {
    * @param color
    */
   drawPixels(fPos: number, color: ColorBase, count: number = 1) {
-    // calc how much the first pixel will hold
-    const decim = new Decimal(fPos);
+    const availableFirstPixel = 1.0 - fPos - Math.trunc(fPos);
 
-    const availableFirstPixel = new Decimal(1).minus(
-      decim.minus(Decimal.trunc(fPos))
-    );
+    const amtFirstPixel = Math.min(availableFirstPixel, count);
 
-    const amtFirstPixel = Decimal.min(availableFirstPixel, count);
-
-    let remaining = Decimal.min(count, <number>this._opts.leds - fPos);
+    let remaining = Math.min(count, <number>this.options.leds - fPos);
     let iPos = Math.trunc(fPos);
 
-    if (remaining.greaterThan(0)) {
+    if (remaining > 0) {
       this.leds[iPos++] = Number(colorFraction(color, amtFirstPixel));
-      remaining = remaining.minus(amtFirstPixel);
+      remaining = remaining - amtFirstPixel;
     }
 
-    while (remaining.greaterThan(1)) {
+    while (remaining > 1) {
       this.leds[iPos++] = Number(color);
-      remaining = remaining.minus(1);
+      remaining = remaining - 1;
     }
 
-    if (remaining.greaterThan(0)) {
+    if (remaining > 0) {
       this.leds[iPos] = Number(colorFraction(color, remaining));
     }
   }
@@ -193,7 +266,7 @@ export class Strip {
   }
 
   clearEffect() {
-    clearInterval(this._effectLoopId);
+    clearInterval(this._effectLoopId as any);
 
     if (this._activeEffect?.onUnmount) {
       this._activeEffect?.onUnmount();
@@ -224,8 +297,16 @@ export class Strip {
     );
   }
 
-  setEffect(effect: { new (): Effect }) {
+  setEffect(effect: { new (): Effect }, configuration?: Preset) {
     this._activeEffect = new effect();
+
+    if(configuration) {
+          Object.assign(this._activeEffect, configuration);
+    }
+
+    Config.presets.storeAsLastPreset(this._activeEffect)
+    
+    return true;
   }
 
   activatePreset(presetName: string) {
@@ -239,7 +320,6 @@ export class Strip {
 
     const targetPreset = presets[presetName];
 
-    this.setEffect(Effects[targetPreset.name]);
-    Object.assign(this._activeEffect, targetPreset.configuration);
+    this.setEffect(Effects[targetPreset.name], targetPreset.configuration);
   }
 }

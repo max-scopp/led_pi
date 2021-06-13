@@ -10,8 +10,6 @@ import { HUE_END, MS_PER_SECOND, S_PER_MINUTE } from "../../../constants";
  * This effect is not based on fps and is therefore deactivated.
  */
 export class RainbowFancy extends DynamicEffect {
-  FRAMES_PER_SECOND = -1;
-
   /**
    * How fast the hue is moving.
    * Higher is slower, lower is faster.
@@ -24,7 +22,7 @@ export class RainbowFancy extends DynamicEffect {
   hueDensity = 5;
 
   draw(t: number) {
-    Main.strip.map((position, count) => {
+    Main.strips?.default.map((position, count) => {
       const pixelProgress = this.hueDensity * position;
       const stepHue = t / this.speed - pixelProgress;
 

@@ -1,4 +1,3 @@
-import { Decimal } from "decimal.js";
 import tinycolor from "tinycolor2";
 
 import { ColorBase } from "./color-base";
@@ -32,11 +31,11 @@ export class CRGB extends ColorBase {
     super();
   }
 
-  fadeToBlackBy(fraction: Decimal.Value) {
-    const result = new Decimal(this.a).minus(fraction);
+  fadeToBlackBy(fraction: number) {
+    const result = this.a -fraction;
 
-    if (result.greaterThanOrEqualTo(0)) {
-      this.a = result.toNumber();
+    if (result >= 0) {
+      this.a = result;
     } else {
       this.a = 0;
     }

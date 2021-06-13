@@ -1,3 +1,6 @@
+
+export type Easing = <O>(t: number, options?:O) => number;
+
 /**
  * A collection of easing methods defining ease-in ease-out curves.
  *

@@ -1,0 +1,15 @@
+# vim /etc/systemd/system/rpi_status_led.service
+# systemctl enable rpi_status_led.service
+# systemctl start rpi_status_led.service
+
+[Unit]
+Description=RasperryPI Status LED Service
+
+[Service]
+ExecStart=/root/led_pi/bin/status_led
+WorkingDirectory=/root/led_pi/
+Type=simple
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

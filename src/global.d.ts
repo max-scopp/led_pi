@@ -41,6 +41,10 @@ declare global {
       html: HtmlResponseGenerator;
     }
   }
+
+  abstract class WorkerMessage {
+    abstract readonly type: string;
+  }
 }
 
 export {};

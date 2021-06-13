@@ -1,6 +1,16 @@
 # Setup RPI
 
-I wrote this at 1 am drunk.
+## Run on boot
+
+0. Build app and make sure it's working.
+1. further steps described in `rpi_services/rpi_led.service`
+
+## Debug without LAN / Nearby WLAN
+
+Solution: Create an access point. Requires `create_ap`.
+
+1. `pacman -S create_ap`
+2. further steps described in `rpi_services/debug_ap.service`
 
 ## WiFi via RaspAP
 

@@ -1,4 +1,3 @@
-import Decimal from "decimal.js";
 import { createLogger } from "../util/logger";
 import { Measure } from "../util/measure";
 
@@ -8,7 +7,7 @@ export abstract class ColorBase {
   abstract clone(): ColorBase;
   abstract toPixel(): number;
 
-  abstract fadeToBlackBy(fraction: Decimal.Value): ColorBase;
+  abstract fadeToBlackBy(fraction: number): ColorBase;
 
   // @Measure(log, "[Symbol.toPrimitive]")
   [Symbol.toPrimitive](_hint: TypeOfTypes) {

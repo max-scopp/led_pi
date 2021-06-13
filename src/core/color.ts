@@ -1,4 +1,4 @@
-import { Decimal } from "decimal.js";
+
 import tinycolor from "tinycolor2";
 
 import { ColorBase } from "./color-base";
@@ -6,14 +6,14 @@ import { EasingFunctions } from "../common/easings";
 import { CHSV } from "./hsv";
 import { CRGB } from "./rgb";
 
-export type Color = number | Decimal | ColorBase;
+export type Color = number | ColorBase;
 
-export function colorFraction(color: ColorBase, fraction: Decimal) {
-  const frac = Decimal.min(1, fraction);
-  const byFrac = new Decimal(1).minus(frac);
+export function colorFraction(color: ColorBase, fraction: number) {
+  const frac = Math.min(1, fraction);
+  const byFrac = 1 - frac;
   const newC = color
     .clone()
-    .fadeToBlackBy(EasingFunctions.Sinusoidal.In(byFrac.toNumber()));
+    .fadeToBlackBy(EasingFunctions.Sinusoidal.In(byFrac));
 
   return newC;
 }

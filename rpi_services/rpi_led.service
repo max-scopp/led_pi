@@ -1,0 +1,15 @@
+# vim /etc/systemd/system/rpi_led.service
+# systemctl enable rpi_led.service
+# systemctl start rpi_led.service
+
+[Unit]
+Description=RasperryPI LED Service
+
+[Service]
+ExecStart=/root/led_pi/bin/led_pi
+WorkingDirectory=/root/led_pi/
+Type=simple
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

@@ -17,6 +17,12 @@ export class RainbowAudialBasic extends AudioEffect {
   smoothingTimeConstant = 0.05;
 
   draw(): void {
+    const stripLength = Main.strips?.default.length || 0;
+
+    if (!this.analyzer) {
+      return;
+    }
+
     // fft size is the buffer size, therefor we divide here by 2
     // const ampSize = this.analyzer.activeChunk.length / 2;
     const meyda = this.analyzer.extract(["amplitudeSpectrum"]);
@@ -51,7 +57,7 @@ export class RainbowAudialBasic extends AudioEffect {
 
         freq_avg += ampRaw;
 
-        const posInStrip = Main.strip.length * perc;
+        const posInStrip = stripLength * perc;
 
         const amplitudeColor = new CHSV(
           (perc * 360 + 180) % 360,
@@ -65,7 +71,7 @@ export class RainbowAudialBasic extends AudioEffect {
         //   )}\t${ampPerc.toFixed(4)}`
         // );
 
-        Main.strip.setPixel(
+        Main.strips?.default.setPixel(
           this.scaleDown ? Math.trunc(posInStrip) : i,
           amplitudeColor
         );

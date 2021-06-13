@@ -23,7 +23,7 @@ export function Measure(
   logger: Function,
   prefix?: string,
   messageCreator: MessageCreator = defaultMessageCreator
-): MethodDecorator {
+): any {
   return (
     _target: any,
     _propertyKey: string | symbol,

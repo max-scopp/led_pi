@@ -1,22 +1,21 @@
-import Decimal from "decimal.js";
-import { Main } from "main";
-import { CWheel } from "core/color-wheel";
-import { DynamicEffect } from "common/effect";
+import { DynamicEffect } from 'common/effect';
+import { CWheel } from 'core/color-wheel';
+import { Main } from 'main';
 
 export class Marquee extends DynamicEffect {
-  FRAMES_PER_SECOND = 60;
-
-  scroll = new Decimal(0);
+  scroll = 0.0;
 
   draw() {
-    this.scroll = this.scroll.add(0.02);
+    const stripLength = Main.strips?.default.length || 0;
 
-    if (this.scroll.greaterThan(5)) {
-      this.scroll = this.scroll.minus(5);
+    this.scroll += 0.02;
+
+    if (this.scroll > 5) {
+      this.scroll -= 5;
     }
 
-    for (let i = this.scroll.toNumber(); i < Main.strip.length - 1; i += 5) {
-      Main.strip.drawPixels(i, CWheel.Green, 3);
+    for (let i = this.scroll; i < stripLength - 1; i += 5) {
+      Main.strips?.default.drawPixels(i, CWheel.Green, 2);
     }
   }
 }

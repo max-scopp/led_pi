@@ -1,0 +1,7 @@
+#!/usr/bin/env sh
+
+bin/set_gpio_led 23 on
+
+#                      SSID  Passphrase
+#                       v        v
+create_ap wlan0 eth0 beamerpi beamerpi

@@ -10,15 +10,8 @@ export enum EffectKind {
  * Base effect signature
  */
 export interface Effect {
-  /**
-   * configures when to call draw(), dynamically adjustable
-   * -1 means as many as possible
-   * 0 means use the default fps
-   */
-  FRAMES_PER_SECOND: number;
-
-  onMount?: () => void;
-  onUnmount?: () => void;
+  onMount?(): void;
+  onUnmount?(): void;
 
   /**
    *
@@ -36,6 +29,13 @@ export type EffectCollection = { [key: string]: { new (): Effect } };
  * Do not use.
  */
 export abstract class Effect {
+  /**
+   * configures when to call draw(), dynamically adjustable
+   * -1 means as many as possible
+   * 0 means use the default fps
+   */
+  FRAMES_PER_SECOND = 0;
+
   static KIND: EffectKind;
 }
 

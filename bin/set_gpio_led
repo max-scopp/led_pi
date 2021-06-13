@@ -1,0 +1,23 @@
+#!/usr/bin/env python
+
+import RPi.GPIO as GPIO
+import sys
+
+args = sys.argv[1:]
+
+# STRIP_5V  DEBUG_GND  DEBUG_5V  5V  GND      APP_ON_5V
+# 18        GND        23        24  APP_GND  25
+
+GPIO.setmode(GPIO.BCM) # BCM or BOARD  
+GPIO.setwarnings(False) # ignore last state
+
+def main(pin_str, state = "on"):
+    led_state = 0 if state == "off" else 1
+    pin = int(pin_str)
+    # print(args)
+    GPIO.setup(pin, GPIO.OUT)   # set a port/pin as an output   
+    GPIO.output(pin, led_state)
+    # GPIO.cleanup()
+
+if __name__ == "__main__":
+    main(*args)

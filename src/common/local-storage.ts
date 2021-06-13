@@ -16,7 +16,7 @@ export class LocalStorage<T extends AnyObject> {
     return this._data[key];
   }
 
-  setItem<K extends keyof T>(key: K, value: T[K]) {
+  setItem<K extends keyof T>(key: K | string, value: T[K]) {
     this._data[key] = value;
     setTimeout(this.store);
   }

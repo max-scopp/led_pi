@@ -1,18 +1,18 @@
-import { Module } from '@nestjs/common';
-import { ServeStaticModule } from '@nestjs/serve-static';
-import { join } from 'path';
+import { CommandsModule } from "./commands/commands.module";
+import { Module } from "@nestjs/common";
+import { ServeStaticModule } from "@nestjs/serve-static";
+import { join } from "path";
 
-import { AppController } from './app.controller';
-import { EffectsModule } from './effects/effects.module';
-import { SysModule } from './sys/sys.module';
+import { AppController } from "./app.controller";
+import { SysModule } from "./sys/sys.module";
 
 @Module({
   imports: [
+    CommandsModule,
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, "../../../", "static"),
     }),
 
-    EffectsModule,
     SysModule,
   ],
   controllers: [AppController],

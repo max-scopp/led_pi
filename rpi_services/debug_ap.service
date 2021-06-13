@@ -1,0 +1,15 @@
+# vim /etc/systemd/system/debug_ap.service
+# systemctl enable debug_ap.service
+# systemctl start debug_ap.service
+
+[Unit]
+Description=RasperryPI LED Hotspot Service
+
+[Service]
+ExecStart=/root/led_pi/bin/debug_ap
+WorkingDirectory=/root/led_pi/
+Type=simple
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

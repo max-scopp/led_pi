@@ -18,20 +18,20 @@ export type PresetCollection = {
   [key: string]: PresetEntry;
 };
 
-interface PresetConfiguration {
+export interface PresetConfiguration {
   STARTUP_PRESET: keyof PresetConfiguration["EFFECTS"];
   EFFECTS: PresetCollection;
 }
 
 export class PresetStorage extends LocalStorage<PresetConfiguration> {
   protected _data = <PresetConfiguration>{
-    STARTUP_PRESET: "default-startup",
+    STARTUP_PRESET: -1,
     EFFECTS: {
       ["default-startup"]: {
         name: RainbowFancy.name,
         configuration: {
           speed: 15,
-          hueDensity: 5,
+          hueDensity: 6,
         },
       },
       ["gamer-fade"]: {
@@ -46,5 +46,15 @@ export class PresetStorage extends LocalStorage<PresetConfiguration> {
 
   constructor() {
     super("presets.json");
+  }
+
+
+  storeAsLastPreset(effect: Effect) {
+    this._data.EFFECTS[-1] = {
+      name: effect.constructor.name,
+      configuration: { ...effect }
+    }
+
+    this.store();
   }
 }

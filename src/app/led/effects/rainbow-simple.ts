@@ -9,18 +9,14 @@ import { CHSV } from "core/hsv";
  *
  * Use negative values to change the direction.
  */
-export class RainbowSimple implements DynamicEffect {
-  FRAMES_PER_SECOND = 10;
-
+export class RainbowSimple extends DynamicEffect {
   onMount() {
-    Main.strip.map(
+    Main.strips?.default.map(
       (position, length, _value) => new CHSV((position / length) * 360, 1, 1)
     );
   }
 
-  constructor() {}
-
   draw() {
-    Main.strip.shift(1);
+    Main.strips?.default.shift(1);
   }
 }

@@ -7,10 +7,11 @@ import { MS_PER_SECOND } from "../../../constants";
 
 /**
  * Infinitely fade between the provided set of colors.
- * FPS independent. Prefer uncapped fps for maximum juicy smoothness ;)
+ * FPS independent.
  */
 export class Fade extends DynamicEffect {
-  FRAMES_PER_SECOND = -1;
+  // This effect is very convincing with low fps, therefor save some cycles
+  FRAMES_PER_SECOND = 30;
 
   colors = [CWheel.Red, CWheel.Green, CWheel.Blue];
 
@@ -30,6 +31,6 @@ export class Fade extends DynamicEffect {
 
     const c = blendColor(this.colors[prevC], this.colors[nextC], fMix * 100);
 
-    Main.strip.fill(c);
+    Main.strips?.default.fill(c);
   }
 }

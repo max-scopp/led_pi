@@ -1,4 +1,3 @@
-import Decimal from "decimal.js";
 import { ColorBase } from "./color-base";
 import { CRGB } from "./rgb";
 
@@ -22,11 +21,11 @@ export class CHSV extends ColorBase {
     super();
   }
 
-  fadeToBlackBy(fraction: Decimal.Value) {
-    const result = new Decimal(this.v).minus(fraction);
+  fadeToBlackBy(fraction: number) {
+    const result =this.v - fraction;
 
-    if (result.lessThanOrEqualTo(0)) {
-      this.v = result.toNumber();
+    if (result <= 0) {
+      this.v = result;
     } else {
       this.v = 0;
     }
